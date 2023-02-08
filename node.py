@@ -10,7 +10,7 @@ class Node:
         samples: int - the amount of samples used for fitting
         samples_per_self: int - the same as samples,
             but filters bad data
-        predictions: np.ndarray - the class to be predicted
+        targets: np.ndarray - the class to be predicted
         threshold: float - the criterion for going left or right
         left: Node | None - the left leaf
         right: Node | Node - the right leaf
@@ -20,8 +20,8 @@ class Node:
         self,
         gini: float,
         samples: int,
-        samples_per_self: int,
-        predictions: np.ndarray
+        samples_per_self: list,
+        targets: np.intp
     ) -> None:
         """
         Init for the Node class
@@ -31,12 +31,12 @@ class Node:
             samples: int - the amount of samples used for fitting
             samples_per_self: int - the same as samples,
                 but filters bad data
-            predictions: np.ndarray - the class to be predicted
+            targets: np.ndarray - the class to be predicted
         """
         self.gini = gini
         self.samples = samples
         self.samples_per_self = samples_per_self
-        self.predictions = predictions
+        self.targets = targets
         self._feature_index = 0
         self._threshold = 0
         self._left = None
@@ -77,14 +77,14 @@ class Node:
         self._threshold = threshold
 
     @property
-    def left(self) -> "Node" | None:
+    def left(self) -> "Node":
         """
         Getter for self._left
         """
         return self._left
 
     @left.setter
-    def left(self, left: "Node" | None) -> None:
+    def left(self, left: "Node") -> None:
         """
         Setter for self._left
 
@@ -94,14 +94,14 @@ class Node:
         self._left = left
 
     @property
-    def right(self) -> "Node" | None:
+    def right(self) -> "Node":
         """
         Getter for self._right
         """
         return self._right
 
     @right.setter
-    def right(self, right: "Node" | None) -> None:
+    def right(self, right: "Node") -> None:
         """
         Setter for self._right
 
