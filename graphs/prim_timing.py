@@ -7,6 +7,7 @@ import networkx as nx
 from tqdm import tqdm
 
 from prim import prim
+from kruskal import kruskal
 from graph_generation import gnp_random_connected_graph
 
 
@@ -22,7 +23,7 @@ for i in tqdm(range(ITERATIONS)):
     time_taken_networkx += end - start
 
     start = time.time()
-    prim(G)
+    kruskal(G)
     end = time.time()
     
     time_taken_native += end - start
