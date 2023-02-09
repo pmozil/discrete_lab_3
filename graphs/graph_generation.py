@@ -4,6 +4,7 @@ The graph generation module
 
 import random
 import networkx as nx
+from matplotlib import animation, rc
 import matplotlib.pyplot as plt
 from itertools import combinations, groupby
 
@@ -66,7 +67,6 @@ def draw_graph(graph: nx.Graph, directed: bool, filename: str) -> None:
                 arrows=True)
         labels = nx.get_edge_attributes(graph, 'weight')
         nx.draw_networkx_edge_labels(graph, pos, edge_labels=labels)
-
     else:
         nx.draw(
             graph,
