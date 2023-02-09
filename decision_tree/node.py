@@ -42,6 +42,14 @@ class Node:
         self._left = None
         self._right = None
 
+    def print_gini(self):
+        print(self.gini)
+        if self._left is not None:
+            self._left.print_gini()
+        if self._right is not None:
+            self._right.print_gini()
+
+
     @property
     def feature_index(self) -> int:
         """
