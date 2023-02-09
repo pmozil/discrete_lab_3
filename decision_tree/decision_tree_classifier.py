@@ -146,10 +146,10 @@ class DecisionTreeClassifier:
     def _predict(
         self,
         inputs: np.ndarray
-    ) -> np.ndarray:
+    ) -> np.intp:
         """Predict class for a single sample."""
         if self.tree_ is None:
-            return 0
+            return np.intp(0)
         node = self.tree_
         while node.left is not None:
             if inputs[node.feature_index] < node.threshold:
@@ -159,6 +159,7 @@ class DecisionTreeClassifier:
         return node.targets
 
 
+# Sorry ;(
 if __name__ == "__main__":
     import argparse
     import pandas as pd
@@ -168,7 +169,7 @@ if __name__ == "__main__":
     from sklearn.utils import Bunch
 
     parser = argparse.ArgumentParser(description="Train a decision tree.")
-    parser.add_argument("--dataset", choices=["breast", "iris", "wifi"], default="wifi")
+    parser.add_argument("--dataset", choices=["breast", "iris", "wifi"], default="breast")
     parser.add_argument("--max_depth", type=int, default=1)
     parser.add_argument("--hide_details", dest="hide_details", action="store_true")
     parser.set_defaults(hide_details=False)
@@ -181,16 +182,6 @@ if __name__ == "__main__":
         dataset = load_breast_cancer()
     elif args.dataset == "iris":
         dataset = load_iris()
-    elif args.dataset == "wifi":
-        # https://archive.ics.uci.edu/ml/datasets/Wireless+Indoor+Localization
-        df = pd.read_csv("wifi_localization.txt", delimiter="\t")
-        data = df.to_numpy()
-        dataset = Bunch(
-            data=data[:, :-1],
-            target=data[:, -1] - 1,
-            feature_names=["Wifi {}".format(i) for i in range(1, 8)],
-            target_names=["Room {}".format(i) for i in range(1, 5)],
-        )
     X, y = dataset.data, dataset.target
 
     # 2. Fit decision tree.
@@ -203,8 +194,6 @@ if __name__ == "__main__":
     # 3. Predict.
     if args.dataset == "iris":
         input = [0, 0, 5.0, 1.5]
-    elif args.dataset == "wifi":
-        input = [-70, 0, 0, 0, -40, 0, 0]
     elif args.dataset == "breast":
         input = [np.random.rand() for _ in range(30)]
     pred = clf.predict([input])[0]

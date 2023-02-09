@@ -36,21 +36,21 @@ class Node:
         self.gini = gini
         self.samples = samples
         self.samples_per_self = samples_per_self
-        self.targets = targets
-        self._feature_index = 0
+        self.targets: np.intp = targets
+        self._feature_index: int = 0
         self._threshold = 0
         self._left = None
         self._right = None
 
     @property
-    def feature_index(self) -> float:
+    def feature_index(self) -> int:
         """
         Getter for self.feature_index
         """
         return self._feature_index
 
     @feature_index.setter
-    def feature_index(self, feature_index: float) -> None:
+    def feature_index(self, feature_index: int) -> None:
         """
         Setter for feature_index
 
