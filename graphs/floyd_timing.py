@@ -1,13 +1,12 @@
 """
-The prim's algorithm comparison
+The Floyd's algorithm comparison
 """
 
 import time
 import networkx as nx
 from tqdm import tqdm
 
-from prim import prim
-from kruskal import kruskal
+from floyd import floyd, floyd_with_numpy
 from graph_generation import gnp_random_connected_graph
 
 
@@ -15,16 +14,20 @@ ITERATIONS = 100
 time_taken_networkx = 0
 time_taken_native = 0
 for i in tqdm(range(ITERATIONS)):
-    G = gnp_random_connected_graph(250, 0.2)
+    G = gnp_random_connected_graph(40, 0.2)
+    if nx.negative_edge_cycle(G):
+        continue
     start = time.time()
-    nx.minimum_spanning_tree(G, algorithm="prim")
+    a = nx.floyd_warshall_numpy(G)
     end = time.time()
 
     time_taken_networkx += end - start
 
     start = time.time()
-    prim(G)
+    b = floyd_with_numpy(G)
     end = time.time()
+
+    print(a == b)
 
     time_taken_native += end - start
 

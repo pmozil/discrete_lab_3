@@ -73,8 +73,7 @@ if __name__ == "__main__":
     random_graph = gnp_random_connected_graph(30, 40)
     pos = nx.arf_layout(random_graph)
     all_edges: set[tuple[int, int]] = set(
-        (edge[0], edge[1])
-        for edge in random_graph.edges()
+        (edge[0], edge[1]) for edge in random_graph.edges()
     )
     fig, ax = plt.subplots()
 
@@ -92,24 +91,25 @@ if __name__ == "__main__":
             pos,
             edgelist=list(all_edges.difference(edges)),
             alpha=0.1,
-            edge_color='g',
+            edge_color="g",
             width=1,
-            ax=ax
+            ax=ax,
         )
         nx.draw_networkx_edges(
             random_graph,
             pos,
             edgelist=list(edges),
             alpha=1.0,
-            edge_color='b',
+            edge_color="b",
             width=1,
-            ax=ax
+            ax=ax,
         )
+
     anim = animation.FuncAnimation(
         fig,
         animate,
         init_func=lambda: None,
         frames=lambda: kruskal_with_yielding(random_graph),
-        interval=500
+        interval=500,
     )
     anim.save("out.mp4")
