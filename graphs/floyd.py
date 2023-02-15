@@ -4,9 +4,10 @@ The Floyd-Warshall algorithm module
 
 import networkx as nx
 import numpy as np
+from typing import Tuple
 
 
-def floyd(graph: nx.Graph) -> tuple[np.ndarray, np.ndarray]:
+def floyd(graph: nx.Graph) -> Tuple[np.ndarray, np.ndarray]:
     """
     Calculate the distance matrix for a graph
 

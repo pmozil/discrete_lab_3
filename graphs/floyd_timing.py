@@ -27,8 +27,6 @@ for i in tqdm(range(ITERATIONS)):
     b = floyd_with_numpy(G)
     end = time.time()
 
-    print(a == b)
-
     time_taken_native += end - start
 
 time_taken_native = time_taken_native / ITERATIONS

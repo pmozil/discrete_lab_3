@@ -24,7 +24,6 @@ def prim(graph: nx.Graph) -> nx.Graph:
     nodes = graph.nodes()
     spanning_tree = nx.Graph()
     for edge in graph.edges(data=True):
-        # pqueue.put((edge[2]["weight"], (edge[0], edge[1])))
         heapq.heappush(pqueue, (edge[0], edge[1]))
     visited = [0 for _ in nodes]
     min_edge = heapq.heappop(pqueue)

@@ -13,7 +13,7 @@ def gnp_random_connected_graph(
     num_of_nodes: int,
     completeness: float,
     directed: bool = False,
-) -> nx.Graph | nx.DiGraph:
+) -> nx.Graph:
     """
     Generate a random graph
 
