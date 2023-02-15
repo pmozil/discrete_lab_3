@@ -4,7 +4,7 @@ import numpy as np
 from node import Node
 
 
-class DecisionTreeClassifier:
+class DecisionTreeClassifier :
     def __init__(self, max_depth: int = 16, min_predictions: int = 20) -> None:
         self._max_depth = max_depth
         self._min_predictions = min_predictions
@@ -18,7 +18,7 @@ class DecisionTreeClassifier:
             targets: np.ndarray - the araay of features to split by
         """
         # classes are assumed to go from 0 to n-1
-        self._classes = len(set(y))
+        self._classes = len(set(targets))
         self._features = features.shape[1]
         self._tree = self._grow_tree(features, targets)
 
@@ -106,7 +106,7 @@ class DecisionTreeClassifier:
         preds = np.argmax(samples_per_self)
         node = Node(
             gini=self._gini(targets),
-            samples=y.size,
+            samples=targets.size,
             samples_per_self=samples_per_self,
             targets=preds,
         )
@@ -116,8 +116,6 @@ class DecisionTreeClassifier:
             and samples_per_self[preds] >= self._min_predictions
         ):
             idx, thr = self._best_split(features, targets)
-            print(idx)
-            print(thr)
             indices_left = features[:, idx] < thr
             features_left, targets_left = (
                 features[indices_left],

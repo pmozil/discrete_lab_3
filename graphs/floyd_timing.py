@@ -10,7 +10,7 @@ from floyd import floyd, floyd_with_numpy
 from graph_generation import gnp_random_connected_graph
 
 
-ITERATIONS = 100
+ITERATIONS = 1000
 time_taken_networkx = 0
 time_taken_native = 0
 for i in tqdm(range(ITERATIONS)):
