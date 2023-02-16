@@ -1,84 +1,59 @@
-import numpy as np 
+import numpy as np
+from itertools import product
+from typing import Iterator, List
 
 from decision_tree_classifier import DecisionTreeClassifier
+
 
 class Estimator:
     def __init__(
         self,
         features: np.ndarray,
         targets: np.ndarray,
-        min_predicitons: list[int] = [5, 10, 20],
-        max_depth: list[int] = [3, 5, 10, 16]
+        min_predictions: List[int] = [5, 10, 20],
+        max_depth: List[int] = [3, 5, 10, 16],
     ) -> None:
         """
         Init fot eh Estimator
 
         Args:
         """
-        self.pred_counter = 0
-        self.depth_counter = 0
-        self.min_predicitons = min_predicitons
+        self.min_predictions = min_predictions
         self.max_depth = max_depth
         self.features = features
         self.targets = targets
 
-    def _next_tree(self) -> DecisionTreeClassifier | None:
+    @property
+    def _next_tree(self) -> Iterator[DecisionTreeClassifier]:
         """
         Train the next Tree so as to check all their accuracies
 
         Returns:
             DecisionTreeClassifier - the next tree with the new arguments
         """
-        if self.depth_counter >= len(self.max_depth):
-            return None
-        
-        tree = DecisionTreeClassifier(
-            max_depth=self.max_depth[self.depth_counter],
-            min_predictions=self.min_predicitons[self.pred_counter]
-        )
-        tree.fit(self.features, self.targets)
+        for depth, preds in product(self.max_depth, self.min_predictions):
+            tree = DecisionTreeClassifier(
+                max_depth=depth,
+                min_predictions=preds,
+            )
+            tree.fit(self.features, self.targets)
+            yield tree
 
-        self.pred_counter = (self.pred_counter + 1) % len(self.min_predicitons)
-        if self.pred_counter == 0:
-            self.depth_counter += 1
-
-        return tree
-    
-    def _calc_accuracy(self, tree: DecisionTreeClassifier | None) -> float:
-        """
-        Calculate the accuracyt of the tree on the given dataset
-
-        Args:
-            tree: DecisionTreeClassifier - the decision tree
-
-        Returns:
-            float - the number in [0, 1] (the accuracy)
-        """
-        if tree is None:
-            return 0
-        features_guessed = 0
-        for ind, input in enumerate(self.features):
-            pred = tree.predict([input])[0]
-            if pred == self.targets[ind]:
-                features_guessed += 1
-        return features_guessed / len(self.targets)
-
+    @property
     def best_tree(self) -> DecisionTreeClassifier:
         """
         Find best tree for the given predictions and depths
-        
+
         Returns:
             DecisionTreeClassifier - the best tree
         """
-        tree = self._next_tree()
-        accuracy = self._calc_accuracy(tree)
-        while (new_tree := self._next_tree()) != None:
-            new_acc = self._calc_accuracy(new_tree)
-            if new_acc >= accuracy and new_tree is not None:
-                accuracy = new_acc
-                tree = new_tree
-        return tree
-
+        trees = self._next_tree
+        accuracy = -1
+        for tree in trees:
+            if tree.accuracy > accuracy:
+                cur_tree = tree
+                accuracy = tree.accuracy
+        return cur_tree
 
 # Sorry ;(
 if __name__ == "__main__":
@@ -87,6 +62,7 @@ if __name__ == "__main__":
     from sklearn.tree import (
         DecisionTreeClassifier as SklearnDecisionTreeClassifier,
     )
+    from sklearn.model_selection import GridSearchCV
 
     parser = argparse.ArgumentParser(description="Train a decision tree.")
     parser.add_argument(
@@ -109,25 +85,32 @@ if __name__ == "__main__":
     X, y = dataset.data, dataset.target
 
     # 2. Fit decision tree.
-    clf_sklearn = SklearnDecisionTreeClassifier(max_depth=args.max_depth)
+    clf_sklearn = SklearnDecisionTreeClassifier()
+    clf_sklearn.fit(X, y)
     # clf = DecisionTreeClassifier(
     #     max_depth=args.max_depth, min_predictions=args.min_predictions
     # )
     # clf.fit(X, y)
-    pred = Estimator(features=X, targets=y)
-    clf = pred.best_tree()
-    clf_sklearn.fit(X, y)
+    pred = Estimator(
+        features=X,
+        targets=y,
+        max_depth=list(range(2, 10, 2)),
+        min_predictions=list(range(2, 30, 4)),
+    )
+    clf = pred.best_tree
 
     # 3. Predict.
     count = 0
-    for _ in range(1000):
+    for _ in range(100000):
         input = [np.random.rand() for _ in range(30)]
         pred = clf.predict([input])[0]
         pred_sklearn = clf_sklearn.predict([input])[0]
-        print(f"""
+        print(
+            f"""
 Prediction: {dataset.target_names[pred]}; \
 Sklearn prediction: {dataset.target_names[pred_sklearn]}
-        """)
+        """
+        )
         if pred == pred_sklearn:
             count += 1
-    print(f"Accuracy: {count / 1000}")
+    print(f"Accuracy: {count / 100000}")

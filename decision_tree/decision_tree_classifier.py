@@ -1,10 +1,12 @@
 """Implementation of the CART algorithm to train decision tree classifiers."""
 import numpy as np
 
+
+from typing import Tuple
 from node import Node
 
 
-class DecisionTreeClassifier :
+class DecisionTreeClassifier:
     def __init__(self, max_depth: int = 16, min_predictions: int = 20) -> None:
         self._max_depth = max_depth
         self._min_predictions = min_predictions
@@ -19,8 +21,10 @@ class DecisionTreeClassifier :
         """
         # classes are assumed to go from 0 to n-1
         self._classes = len(set(targets))
-        self._features = features.shape[1]
-        self._tree = self._grow_tree(features, targets)
+        self._features_len = features.shape[1]
+        self._features = features
+        self._targets = targets
+        self._tree = self.build_tree(features, targets)
 
     def predict(self, object_features: np.ndarray) -> list:
         """
@@ -42,9 +46,9 @@ class DecisionTreeClassifier :
             (np.sum(targets == c) / m) ** 2 for c in range(self._classes)
         )
 
-    def _best_split(
+    def split_data(
         self, features: np.ndarray, targets: np.ndarray
-    ) -> tuple[int, float]:
+    ) -> Tuple[int, float]:
         """Find the best split for a node.
 
         Args:
@@ -52,7 +56,8 @@ class DecisionTreeClassifier :
             targets: np.ndarray - the array of targets (results)
 
         Returns:
-            tuple[int, float] - the pair with the index of feature and threshold
+            tuple[int, float] - the pair with the index of
+                feature and threshold
         """
         m = targets.size
         if m <= 1:
@@ -63,13 +68,13 @@ class DecisionTreeClassifier :
         best_gini = 1.0 - sum((n / m) ** 2 for n in parent_counts)
         id, thr = -1, -1
 
-        for idx in range(self._features):
+        for idx in range(self._features_len):
             thresholds, classes = zip(*sorted(zip(features[:, idx], targets)))
 
             lefts = [0] * self._classes
             rights = parent_counts.copy()
             for i in range(1, m):
-                c = classes[i - 1]
+                c = int(classes[i - 1])
                 lefts[c] += 1
                 rights[c] -= 1
                 gini_left = 1.0 - sum(
@@ -91,7 +96,7 @@ class DecisionTreeClassifier :
 
         return id, float(thr)
 
-    def _grow_tree(
+    def build_tree(
         self, features: np.ndarray, targets: np.ndarray, depth: int = 0
     ) -> Node:
         """
@@ -115,7 +120,7 @@ class DecisionTreeClassifier :
             depth < self._max_depth
             and samples_per_self[preds] >= self._min_predictions
         ):
-            idx, thr = self._best_split(features, targets)
+            idx, thr = self.split_data(features, targets)
             indices_left = features[:, idx] < thr
             features_left, targets_left = (
                 features[indices_left],
@@ -127,11 +132,28 @@ class DecisionTreeClassifier :
             )
             node.feature_index = idx
             node.threshold = thr
-            node.left = self._grow_tree(features_left, targets_left, depth + 1)
-            node.right = self._grow_tree(
+            node.left = self.build_tree(features_left, targets_left, depth + 1)
+            node.right = self.build_tree(
                 features_right, targets_right, depth + 1
             )
         return node
+
+    @property
+    def accuracy(self) -> float:
+        """
+        Evaluate the tree's accuracy
+
+        Returns:
+            float: the tree's accuracy
+        """
+        if self._tree is None:
+            return 0
+        num_guessed = 0
+        for ind, input in enumerate(self._features):
+            pred = self.predict([input])[0]
+            if pred == self._targets[ind]:
+                num_guessed += 1
+        return num_guessed / len(self._targets)
 
     def _predict(self, object_features: np.ndarray) -> np.intp:
         """
@@ -194,10 +216,12 @@ if __name__ == "__main__":
         input = [np.random.rand() for _ in range(30)]
         pred = clf.predict([input])[0]
         pred_sklearn = clf_sklearn.predict([input])[0]
-        print(f"""
+        print(
+            f"""
 Prediction: {dataset.target_names[pred]}; \
 Sklearn prediction: {dataset.target_names[pred_sklearn]}
-        """)
+        """
+        )
         if pred == 0:
             count += 1
     print(f"Total maligns: {count}")
