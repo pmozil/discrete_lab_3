@@ -6,6 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import heapq
+import queue
 
 from graph_generation import gnp_random_connected_graph, draw_graph
 
