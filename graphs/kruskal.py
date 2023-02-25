@@ -5,6 +5,7 @@ Kruskal's algorithm module
 import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib import animation
+import heapq
 import queue
 
 from graph_generation import gnp_random_connected_graph, draw_graph
@@ -20,19 +21,19 @@ def kruskal(graph: nx.Graph) -> nx.Graph:
     Returns:
         nx.Graph - the spanning tree
     """
-    pqueue = queue.PriorityQueue()
+    pqueue = []
     nodes = graph.nodes()
     spanning_tree = nx.Graph()
     for edge in graph.edges(data=True):
-        pqueue.put((edge[2]["weight"], (edge[0], edge[1])))
+        heapq.heappush(pqueue, (edge[2]['weight'], (edge[0], edge[1])))
     visited = [1 for _ in nodes]
-    min_edge = pqueue.get()
+    min_edge = heapq.heappop(pqueue)
     spanning_tree.add_edge(*min_edge[1], weight=min_edge[0])
     visited[min_edge[1][0]] = 0
     visited[min_edge[1][1]] = 0
-    while not pqueue.empty() and not all(visited):
-        min_edge = pqueue.get()
-        if (visited[min_edge[1][0]]) | (visited[min_edge[1][1]]):
+    while pqueue and any(visited):
+        min_edge = heapq.heappop(pqueue)
+        if (visited[min_edge[1][0]]) or (visited[min_edge[1][1]]):
             spanning_tree.add_edge(*min_edge[1], weight=min_edge[0])
             visited[min_edge[1][0]] = 0
             visited[min_edge[1][1]] = 0

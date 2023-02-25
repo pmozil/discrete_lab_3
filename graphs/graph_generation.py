@@ -43,7 +43,7 @@ def gnp_random_connected_graph(
                 graph.add_edge(*e)
 
     for source, dest, weight in graph.edges(data=True):
-        weight["weight"] = random.randint(0, 20)
+        weight["weight"] = random.randint(-10, 20)
 
     return graph
 
